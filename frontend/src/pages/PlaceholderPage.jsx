@@ -1,0 +1,1 @@
+export function PlaceholderPage({ title }) { return <div><h1 className="text-2xl font-bold">{title}</h1><p className="mt-2 text-sm text-slate-500">This authenticated dashboard section is ready for its domain features.</p></div>; }

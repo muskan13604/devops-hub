@@ -1,0 +1,10 @@
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { useDispatch } from 'react-redux';
+import { authApi } from '../services/auth.api';
+import { setCredentials } from '../store/authSlice';
+import { AuthCard } from './LoginPage';
+
+export function RegisterPage() { const [form, setForm] = useState({ email: '', password: '' }); const dispatch = useDispatch(); const navigate = useNavigate(); const mutation = useMutation({ mutationFn: authApi.register, onSuccess: (data) => { dispatch(setCredentials(data)); navigate('/'); } }); return <AuthCard title="Create your account" subtitle="Start managing your delivery operations."><form onSubmit={(event) => { event.preventDefault(); mutation.mutate(form); }} className="space-y-4"><Field label="Work email" type="email" value={form.email} onChange={(email) => setForm({ ...form, email })} /><Field label="Password" type="password" value={form.password} onChange={(password) => setForm({ ...form, password })} hint="Use at least 8 characters." />{mutation.error && <p className="text-sm text-rose-600">{mutation.error.response?.data?.error?.message || 'Unable to create account.'}</p>}<button disabled={mutation.isPending} className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-60">{mutation.isPending ? 'Creating account…' : 'Create account'}</button></form><p className="mt-6 text-center text-sm text-slate-500">Already have an account? <Link className="font-semibold text-indigo-600" to="/login">Sign in</Link></p></AuthCard>; }
+function Field({ label, type, value, onChange, hint }) { return <label className="block text-sm font-medium text-slate-700">{label}<input required minLength={type === 'password' ? 8 : undefined} type={type} value={value} onChange={(event) => onChange(event.target.value)} className="mt-1.5 w-full rounded-lg border border-slate-300 px-3 py-2.5 outline-none ring-indigo-500 focus:ring-2" />{hint && <span className="mt-1 block text-xs font-normal text-slate-500">{hint}</span>}</label>; }

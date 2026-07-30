@@ -11,6 +11,11 @@ async function connectDatabase() {
   await client.connect();
   database = client.db(env.mongoDbName);
   await database.command({ ping: 1 });
+  await Promise.all([
+    database.collection('users').createIndex({ email: 1 }, { unique: true }),
+    database.collection('refreshSessions').createIndex({ tokenId: 1 }, { unique: true }),
+    database.collection('refreshSessions').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),
+  ]);
   console.log('MongoDB connected');
   return database;
 }
