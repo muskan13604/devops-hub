@@ -3,13 +3,13 @@ const { AppError } = require('../../shared/errors/AppError');
 const repository = require('./auth.repository');
 const { issueTokenPair, verifyRefreshToken } = require('./token.service');
 
-const presentUser = (user) => ({ id: user._id.toString(), email: user.email, createdAt: user.createdAt });
+const presentUser = (user) => ({ id: user._id.toString(), email: user.email, role: user.role || 'Viewer', createdAt: user.createdAt });
 
-async function register({ email, password }) {
+async function register({ email, password, role }) {
   if (await repository.findUserByEmail(email)) throw new AppError('An account with this email already exists.', 409, 'EMAIL_IN_USE');
   const passwordHash = await bcrypt.hash(password, 12);
   try {
-    const result = await repository.createUser({ email, passwordHash });
+    const result = await repository.createUser({ email, passwordHash, role });
     const user = await repository.findUserById(result.insertedId.toString());
     return { user: presentUser(user), ...(await issueTokenPair(user)) };
   } catch (error) {
