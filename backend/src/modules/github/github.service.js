@@ -41,6 +41,8 @@ async function fetchRepositories(userId) {
     private: repo.private,
     htmlUrl: repo.html_url,
     description: repo.description,
+    stars: repo.stargazers_count,
+    language: repo.language,
     updatedAt: repo.updated_at
   }));
 }
