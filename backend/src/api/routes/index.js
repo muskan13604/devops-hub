@@ -5,6 +5,7 @@ const demoRoutes = require('./demo.routes');
 const projectsRoutes = require('./projects.routes');
 const githubRoutes = require('./github.routes');
 const dockerRoutes = require('./docker.routes');
+const jenkinsRoutes = require('./jenkins.routes');
 
 const router = Router();
 router.use('/health', healthRoutes);
@@ -13,5 +14,6 @@ router.use('/demo', demoRoutes);
 router.use('/projects', projectsRoutes);
 router.use('/github', githubRoutes);
 router.use('/docker', dockerRoutes);
+router.use('/jenkins', jenkinsRoutes);
 
 module.exports = router;

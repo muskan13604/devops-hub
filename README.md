@@ -20,9 +20,18 @@ Yeh ek complete DevOps dashboard application hai jo React (Frontend) aur Node.js
   - `frontend/Dockerfile`: Multi-stage build (Node se build karke Nginx se serve kiya).
   - `docker-compose.yml`: Frontend, Backend, MongoDB aur ek Nginx API gateway ko ek sath connect kiya.
 
-### 4. Docker APIs (Host Machine ke Docker se baat karna)
-- **Kya kiya:** Aisi APIs banayi jo backend se directly Docker images list, pull, build aur delete kar sakti hain!
-- **Kaise kiya:** Backend Docker container ke andar host machine ka Docker socket (`/var/run/docker.sock`) mount kiya gaya hai. Backend mein Node ka `child_process.exec` use karke hum backend se real terminal commands (jaise `docker images`) run karte hain aur output/logs ko API response mein frontend ko bhejte hain.
+### 4. Docker APIs & UI (Host Machine ke Docker se baat karna)
+- **Kya kiya:** Aisi APIs banayi jo backend se directly Docker images list, pull, build aur delete kar sakti hain, aur frontend pe iska ek mast "Docker Engine" page banaya hai!
+- **Kaise kiya:** Backend Docker container ke andar host machine ka Docker socket (`/var/run/docker.sock`) mount kiya gaya hai. Backend mein Node ka `child_process.exec` use karke hum backend se real terminal commands (jaise `docker images`) run karte hain. Frontend pe ek modal banaya hai jo in commands ka raw output (logs) ek dark terminal view mein dikhata hai.
+
+### 5. Jenkins CI/CD Integration
+- **Kya kiya:** "Deployments" section ko ek fully functional Jenkins Dashboard mein convert kiya jisse hum jobs trigger kar sakte hain aur build history dekh sakte hain.
+- **Kyu kiya:** Kyunki DevOps dashboard bina CI/CD ke adhura hai! Jenkins se directly pipelines trigger karna bahut zaruri hai.
+- **Kaise kiya:** 
+  - Backend mein naya `jenkins` module banaya jo Jenkins REST API se baat karta hai (Basic Auth use karke).
+  - Jenkins configuration (URL, Username, Token) ko dynamically MongoDB ke user document mein store kiya (jaise GitHub token).
+  - Jab bhi build trigger hota hai, ek naya `jenkinsHistory` collection MongoDB mein entry store karta hai taaki hume past builds ka record mile, bina baar baar Jenkins ko load kiye.
+  - Frontend (`DeploymentsPage.jsx`) pe ek modal setup kiya hai jo Jenkins se build ka live log console (`consoleText`) fetch karke dikhata hai.
 
 ## 🚀 Isko Run Kaise Karein?
 
