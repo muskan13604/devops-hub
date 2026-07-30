@@ -7,6 +7,7 @@ const presentProject = (project) => ({
   repository: project.repository,
   description: project.description,
   status: project.status,
+  repoData: project.repoData || null,
   createdBy: project.createdBy.toString(),
   createdAt: project.createdAt,
   updatedAt: project.updatedAt
