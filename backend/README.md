@@ -13,10 +13,9 @@ Here is a simple explanation of **kya use krre h, kyun krre h, aur kaise use krn
 - **bcryptjs**: Yeh passwords ko encrypt (hash) karne ke liye use hota hai. Hum kabhi bhi actual passwords database mein save nahi karte, sirf unka hashed version save hota hai for security.
 
 ## Features Included
-- **User Authentication**: Register, Login, Logout using secure JWTs.
-- **Password Hashing**: Securely storing user passwords.
-- **Role Based Access Control (RBAC)**: Users can have roles like `Admin`, `Developer`, or `Viewer`. Humne ek special middleware (`authorize`) banaya hai to protect routes based on these roles!
-- **Protected Routes**: APIs jinko access karne ke liye aapko pehle login karna padega.
+- **User Authentication & RBAC**: Register, Login, Logout using secure JWTs with Role Based Access Control (Admin, Developer, Viewer).
+- **Projects Management (CRUD)**: Create, read, update, and delete projects. Pagination and search features are built right into the API!
+- **GitHub Integration**: Apne GitHub account ko connect karein! Yeh API directly GitHub se baat karti hai to fetch your repositories, branches, and latest commits securely. Data is stored in MongoDB.
 
 ## Kaise Use Karein (How to run)
 

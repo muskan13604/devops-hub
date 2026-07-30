@@ -16,6 +16,10 @@ Security bahut zaroori hai! Humne JWT authentication aise setup kiya hai:
 1. **Access Token**: Yeh token Redux memory me save hota hai. Yeh fast hai aur jab aap page refresh karte ho tab gaayab ho jata hai (which is safe).
 2. **Refresh Token**: Yeh token backend ek HttpOnly cookie me bhejta hai. Ise koi hacker ya script chura nahi sakti. Jab Access Token expire hota hai, Axios automatically is cookie ka use karke naya token le aata hai bina aapko logout kiye!
 
+## Features Included (Naye Updates!)
+- **React Query for Data**: Jab bhi hum table mein projects search ya load karte hain, React Query background mein data fetch karta hai. Isse page load fast hota hai aur loading spinners automatically dikhte hain. Ismein humne search aur pagination bhi implement kiya hai!
+- **GitHub Integration UI**: Ab aap projects banate waqt apna GitHub Token de sakte hain. React Query is token ka use karke aapke saare repositories fetch karega aur aap ek dropdown se directly repository select kar sakte hain!
+
 ## Kaise Use Karein (How to run)
 
 1. Apne environment variables set karein:
@@ -26,4 +30,4 @@ Security bahut zaroori hai! Humne JWT authentication aise setup kiya hai:
    pnpm --dir frontend dev
    ```
 
-The application will start on port `5173`. Open it in your browser and enjoy the premium dashboard experience!
+The application will start on port `5173`. Open it in your browser, login, and click on "Projects" to see the magic!

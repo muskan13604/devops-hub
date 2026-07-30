@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
+import { ProjectsPage } from './pages/ProjectsPage';
 
 export default function App() { 
   return (
@@ -12,7 +13,7 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/projects" element={<PlaceholderPage title="Projects" />} />
+          <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/deployments" element={<PlaceholderPage title="Deployments" />} />
           <Route path="/monitoring" element={<PlaceholderPage title="Monitoring" />} />
           <Route path="/ai-assistant" element={<PlaceholderPage title="AI Assistant" />} />
