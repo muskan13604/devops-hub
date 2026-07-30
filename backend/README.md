@@ -1,42 +1,27 @@
-# DevOpsHub AI Backend
+# Backend API (DevOps Hub)
 
-Welcome to the backend server! This handles all the data and business logic for our application.
-We have built this using some of the most popular and powerful tools available. 
+Yeh hamara backend hai jo Express.js aur MongoDB use karta hai. Isme JWT authentication, Role-Based Access Control (RBAC), GitHub API integration, aur abhi Docker APIs bhi add kiye gaye hain!
 
-Here is a simple explanation of **kya use krre h, kyun krre h, aur kaise use krna hai** (what we are using, why, and how).
+## Hum Kya Use Kar Rahe Hain?
+- **Node.js & Express**: Fast aur simple APIs banane ke liye.
+- **MongoDB**: Data (Users, Projects) store karne ke liye.
+- **JWT (JSON Web Tokens)**: Secure login aur access control ke liye.
+- **Docker**: Containerization aur command execution ke liye.
 
-## Kya Use Kar Rahe Hain (Tech Stack)
+## Hum Kaise Run Karte Hain?
+Naya update ke baad, aap isko easily Docker Compose ke zariye run kar sakte hain. Docker Compose frontend, backend, MongoDB aur Nginx sab ek sath run karega!
 
-- **Node.js & Express**: Yeh hamara main server framework hai. Express makes it very easy to create APIs (like `/api/auth/login`) and handle requests from the frontend quickly and efficiently.
-- **MongoDB**: Yeh hamara database hai. Hum apna data (like users) yahan save karte hain. It's a NoSQL database, which means it is very flexible and fast for storing JSON-like documents.
-- **JWT (JSON Web Tokens)**: Yeh authentication ke liye use hota hai. Jab aap login karte ho, server aapko ek token deta hai. You use this token to prove who you are without sending your password every time. We also use **Refresh Tokens** so that you stay logged in securely.
-- **bcryptjs**: Yeh passwords ko encrypt (hash) karne ke liye use hota hai. Hum kabhi bhi actual passwords database mein save nahi karte, sirf unka hashed version save hota hai for security.
+Terminal me root folder (`devopss hub`) me jaakar type karein:
+```bash
+docker-compose up --build
+```
+Yeh command Nginx ko port 80 pe start kar dega, aur aapka frontend automatically waha serve ho jayega!
 
-## Features Included
-- **User Authentication & RBAC**: Register, Login, Logout using secure JWTs with Role Based Access Control (Admin, Developer, Viewer).
-- **Projects Management (CRUD)**: Create, read, update, and delete projects. Pagination and search features are built right into the API!
-- **GitHub Integration**: Apne GitHub account ko connect karein! Yeh API directly GitHub se baat karti hai to fetch your repositories, branches, and latest commits securely. Data is stored in MongoDB.
+## Naye Docker APIs
+Ab hamara backend directly aapke host Docker se baat kar sakta hai (Socket mount ki wajah se). Naye API endpoints:
+- `GET /api/docker/images` - Sabhi Docker images list karta hai.
+- `POST /api/docker/images/pull` - Naya image pull karta hai (`imageName` body me pass karna hoga).
+- `POST /api/docker/images/build` - Dockerfile se naya image build karta hai.
+- `DELETE /api/docker/images/:imageId` - Image delete karta hai.
 
-## Kaise Use Karein (How to run)
-
-1. Apne environment variables set karein:
-   Copy `.env.example` to `.env` and put your MongoDB URI there.
-
-2. Dependencies install karein:
-   From the root of the project, run:
-   ```bash
-   pnpm install
-   ```
-
-3. Server start karein:
-   ```bash
-   pnpm --dir backend dev
-   ```
-
-The server will start on port `4000` (or whatever is in your `.env`).
-
-## Demo Routes (RBAC in Action)
-You can test the Role-Based Access Control using these routes:
-- `GET /api/demo/public-info` (Any logged-in user can access)
-- `GET /api/demo/dev-dashboard` (Only Admin and Developer can access)
-- `GET /api/demo/admin-panel` (Only Admin can access)
+*(Note: Yeh sab Docker APIs role-based hain, yani sirf `Admin` aur `Developer` hi inhe access kar sakte hain!)*

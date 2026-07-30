@@ -1,75 +1,38 @@
-# DevOpsHub AI
+# DevOps Hub AI 🚀
 
-Production-oriented monorepo skeleton for a React/Vite frontend and a Node.js/Express/MongoDB backend. This repository intentionally contains no product features, routes, database models, or UI implementation yet.
+Yeh ek complete DevOps dashboard application hai jo React (Frontend) aur Node.js/Express (Backend) ka use karta hai. Is project mein humne GitHub API aur Docker dono ko integrate kiya hai!
 
-## Repository layout
+## 🛠️ Humne Abhi Tak Kya Kya Kiya Hai?
 
-```text
-devopshub-ai/
-├── frontend/                 # React + Vite application
-├── backend/                  # Express API application
-├── packages/                 # Shared, framework-agnostic workspace packages
-├── package.json              # Workspace manifest
-└── .gitignore
+### 1. Authentication & Roles (Backend & Frontend)
+- **Kya kiya:** JWT aur Cookies ka use karke secure login/register system banaya.
+- **Kaise kiya:** Backend mein `auth.controller.js` banaya jo user password ko bcrypt se hash karta hai, aur JWT tokens generate karta hai. Frontend mein React Query aur Redux ka use karke user state manage kiya gaya hai.
+- **Roles:** `Admin`, `Developer`, aur `Viewer` roles banaye hain jisse unauthorized users sensitive APIs access na kar sakein.
+
+### 2. GitHub Integration
+- **Kya kiya:** User ka GitHub Personal Access Token store karke unke repositories, branches aur latest commits fetch kiye.
+- **Kaise kiya:** Backend mein `github.service.js` fetch API use karta hai GitHub se data laane ke liye. Frontend mein ek dedicated "Repositories" page aur ek slide-over panel banaya hai jo directly branches aur unke commits dikhata hai.
+
+### 3. Dockerization (Docker Compose)
+- **Kya kiya:** Pure frontend, backend aur database (MongoDB) ko Docker containers ke andar daal diya. Nginx ka setup kiya as a reverse proxy.
+- **Kaise kiya:** 
+  - `backend/Dockerfile`: Node Alpine base image use karke backend setup kiya aur usme `docker` CLI install kiya.
+  - `frontend/Dockerfile`: Multi-stage build (Node se build karke Nginx se serve kiya).
+  - `docker-compose.yml`: Frontend, Backend, MongoDB aur ek Nginx API gateway ko ek sath connect kiya.
+
+### 4. Docker APIs (Host Machine ke Docker se baat karna)
+- **Kya kiya:** Aisi APIs banayi jo backend se directly Docker images list, pull, build aur delete kar sakti hain!
+- **Kaise kiya:** Backend Docker container ke andar host machine ka Docker socket (`/var/run/docker.sock`) mount kiya gaya hai. Backend mein Node ka `child_process.exec` use karke hum backend se real terminal commands (jaise `docker images`) run karte hain aur output/logs ko API response mein frontend ko bhejte hain.
+
+## 🚀 Isko Run Kaise Karein?
+
+Docker compose ka use karke pura project ek single command se start ho jata hai:
+
+```bash
+docker-compose up --build
 ```
+Yeh command Nginx ko port `80` par start karega:
+- **Frontend URL:** `http://localhost`
+- **Backend API:** `http://localhost/api`
 
-## Frontend
-
-```text
-frontend/
-├── public/                   # Static files served as-is
-└── src/
-    ├── app/                  # Application bootstrap and provider composition
-    ├── assets/               # Imported images, fonts, and other bundled assets
-    ├── components/           # Reusable presentational UI components
-    ├── config/               # Client-side configuration and environment access
-    ├── features/             # Domain-oriented Redux slices, UI, and workflows
-    ├── hooks/                # Reusable React hooks
-    ├── layouts/              # Shared page shells and layout components
-    ├── pages/                # Route-level screens
-    ├── routes/               # Route definitions and navigation guards
-    ├── services/             # API clients and external-service adapters
-    ├── store/                # Redux Toolkit store and typed store helpers
-    ├── styles/               # Tailwind entry styles and global CSS
-    ├── types/                # Frontend-specific TypeScript types
-    └── utils/                # Pure client-side helper functions
-```
-
-## Backend
-
-```text
-backend/
-├── src/
-│   ├── api/
-│   │   ├── middlewares/      # Express middleware (auth, errors, validation, etc.)
-│   │   └── routes/           # HTTP route registration layer
-│   ├── config/               # Runtime configuration and environment validation
-│   ├── database/             # MongoDB connection and persistence setup
-│   ├── modules/              # Self-contained business domains (created as needed)
-│   ├── shared/
-│   │   ├── constants/        # Cross-module constants
-│   │   ├── errors/           # Shared error types and HTTP error mapping
-│   │   └── utils/            # Framework-independent server utilities
-│   └── types/                # Backend-specific TypeScript types
-└── tests/                    # API, integration, and test fixtures
-```
-
-Each future `modules/<domain>/` directory should own its controller, service/use-case, repository, validation schema, and model. This keeps HTTP concerns, business rules, and MongoDB access separate.
-
-## Shared packages
-
-```text
-packages/
-├── config/                   # Shared runtime/tool configuration exports
-├── eslint-config/            # Reusable linting presets
-└── tsconfig/                 # Reusable TypeScript base configurations
-```
-
-Shared packages must stay free of frontend- or Express-specific assumptions unless they are deliberately named for one consumer.
-
-## Technology boundaries
-
-- `frontend`: React, Vite, Tailwind CSS, and Redux Toolkit.
-- `backend`: Node.js, Express, and MongoDB.
-- `packages`: shared developer tooling and future framework-neutral code only.
-
+Sab set hai! Agar aap naye containers ya features add karna chahte hain, to bas code change karke `docker-compose up --build` wapas run karein.
