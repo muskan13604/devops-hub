@@ -1,5 +1,5 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { FiActivity, FiBox, FiGrid, FiLogOut, FiSettings, FiShield, FiBell, FiSearch } from 'react-icons/fi';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { FiActivity, FiBox, FiGrid, FiLogOut, FiSettings, FiShield, FiBell, FiSearch, FiCloudLightning, FiCpu, FiMessageSquare } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { authApi } from '../services/auth.api';
 import { clearSession } from '../store/authSlice';
@@ -7,7 +7,10 @@ import { clearSession } from '../store/authSlice';
 const navItems = [
   { to: '/', label: 'Overview', icon: FiGrid },
   { to: '/projects', label: 'Projects', icon: FiBox },
-  { to: '/activity', label: 'Activity', icon: FiActivity }
+  { to: '/deployments', label: 'Deployments', icon: FiCloudLightning },
+  { to: '/monitoring', label: 'Monitoring', icon: FiCpu },
+  { to: '/ai-assistant', label: 'AI Assistant', icon: FiMessageSquare },
+  { to: '/settings', label: 'Settings', icon: FiSettings }
 ];
 
 export function DashboardLayout() {
