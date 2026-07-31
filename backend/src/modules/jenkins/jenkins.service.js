@@ -97,6 +97,25 @@ async function getBuildLogs(userId, jobName, buildId) {
   return { logs };
 }
 
+async function getPipelineStages(userId, jobName, buildId) {
+  const config = await getJenkinsConfig(userId);
+  const headers = getJenkinsHeaders(config);
+  
+  // Jenkins workflow API endpoint for pipeline stages
+  const url = `${config.url}/job/${jobName}/${buildId}/wfapi/describe`;
+  try {
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error(`wfapi returned ${response.status}`);
+    }
+    const data = await response.json();
+    return data.stages || [];
+  } catch (error) {
+    console.warn(`Could not fetch pipeline stages for ${jobName}#${buildId}. (Maybe it is not a pipeline job?)`, error.message);
+    return []; // Return empty if not a pipeline job or wfapi is missing
+  }
+}
+
 async function getHistory(userId) {
   const history = await jenkinsHistoryCollection()
     .find({ userId: new ObjectId(userId) })
@@ -111,5 +130,6 @@ module.exports = {
   triggerBuild,
   getBuildStatus,
   getBuildLogs,
+  getPipelineStages,
   getHistory
 };

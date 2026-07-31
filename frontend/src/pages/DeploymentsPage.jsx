@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jenkinsApi } from '../services/jenkins.api';
-import { FiCloudLightning, FiSettings, FiPlay, FiClock, FiCheckCircle, FiXCircle, FiLoader, FiFileText, FiX, FiRotateCw } from 'react-icons/fi';
+import { FiCloudLightning, FiSettings, FiPlay, FiClock, FiCheckCircle, FiXCircle, FiLoader, FiFileText, FiX, FiRotateCw, FiGitMerge } from 'react-icons/fi';
 
 export function DeploymentsPage() {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
   const [viewingLogs, setViewingLogs] = useState(null);
+  const [viewingStages, setViewingStages] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: response, isLoading, error } = useQuery({
@@ -75,7 +76,7 @@ export function DeploymentsPage() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Parameters</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Triggered At</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Logs</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 bg-white">
@@ -121,10 +122,13 @@ export function DeploymentsPage() {
                         <button 
                           onClick={() => retryMutation.mutate({ jobName: build.jobName, parameters: build.parameters })} 
                           disabled={retryMutation.isPending}
-                          className="text-slate-400 hover:text-emerald-600 p-2 rounded-lg transition-colors mr-2 disabled:opacity-50"
+                          className="text-slate-400 hover:text-emerald-600 p-2 rounded-lg transition-colors mr-1 disabled:opacity-50"
                           title="Retry Build"
                         >
                           <FiRotateCw size={18} className={retryMutation.isPending ? "animate-spin" : ""} />
+                        </button>
+                        <button onClick={() => setViewingStages(build)} className="text-slate-400 hover:text-sky-600 p-2 rounded-lg transition-colors mr-1" title="View Pipeline Stages">
+                          <FiGitMerge size={18} />
                         </button>
                         <button onClick={() => setViewingLogs(build)} className="text-slate-400 hover:text-indigo-600 p-2 rounded-lg transition-colors" title="View Logs">
                           <FiFileText size={18} />
@@ -142,6 +146,7 @@ export function DeploymentsPage() {
       {isConfigModalOpen && <ConfigModal onClose={() => setIsConfigModalOpen(false)} />}
       {isTriggerModalOpen && <TriggerModal onClose={() => setIsTriggerModalOpen(false)} />}
       {viewingLogs && <LogsViewerModal build={viewingLogs} onClose={() => setViewingLogs(null)} />}
+      {viewingStages && <StagesViewerModal build={viewingStages} onClose={() => setViewingStages(null)} />}
     </div>
   );
 }
@@ -286,6 +291,72 @@ function LogsViewerModal({ build, onClose }) {
             <div className="text-rose-400 text-sm font-mono">Error: {error.response?.data?.message || error.message}</div>
           ) : (
             <pre className="text-xs font-mono text-slate-300 whitespace-pre-wrap leading-relaxed">{data?.data?.logs}</pre>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StagesViewerModal({ build, onClose }) {
+  const [buildId, setBuildId] = useState('lastBuild'); 
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['jenkinsStages', build.jobName, buildId],
+    queryFn: () => jenkinsApi.getPipelineStages(build.jobName, buildId),
+    retry: false
+  });
+
+  const stages = data?.data || [];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-2xl rounded-2xl bg-white p-0 shadow-2xl animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col border border-slate-200">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <FiGitMerge className="text-indigo-600" /> Pipeline Stages: {build.jobName} 
+            <input type="text" value={buildId} onChange={e => setBuildId(e.target.value)} className="ml-2 bg-slate-50 border border-slate-200 text-xs px-2 py-1 rounded outline-none w-24 text-center text-slate-700" />
+          </h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+            <FiX size={20} />
+          </button>
+        </div>
+        <div className="p-6 bg-slate-50 overflow-y-auto max-h-[70vh] min-h-[300px]">
+          {isLoading ? (
+            <div className="text-slate-500 text-sm flex items-center justify-center h-full gap-2"><FiLoader className="animate-spin" /> Loading stages...</div>
+          ) : error ? (
+            <div className="text-rose-500 text-sm">Error: {error.response?.data?.message || error.message}</div>
+          ) : stages.length === 0 ? (
+            <div className="text-slate-500 text-sm flex flex-col items-center justify-center h-full">
+              <p>No pipeline stages found.</p>
+              <p className="text-xs mt-2">Ensure this is a declarative/scripted Pipeline job and wfapi is installed in Jenkins.</p>
+            </div>
+          ) : (
+            <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
+              {stages.map((stage, i) => (
+                <div key={i} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                  <div className={`flex items-center justify-center w-10 h-10 rounded-full border-4 border-white shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-sm ${
+                    stage.status === 'SUCCESS' ? 'bg-emerald-500 text-white' : 
+                    stage.status === 'FAILED' ? 'bg-rose-500 text-white' : 
+                    stage.status === 'IN_PROGRESS' ? 'bg-indigo-500 text-white animate-pulse' : 
+                    'bg-slate-300 text-white'
+                  }`}>
+                    {stage.status === 'SUCCESS' && <FiCheckCircle size={18} />}
+                    {stage.status === 'FAILED' && <FiXCircle size={18} />}
+                    {stage.status === 'IN_PROGRESS' && <FiLoader className="animate-spin" size={18} />}
+                    {stage.status !== 'SUCCESS' && stage.status !== 'FAILED' && stage.status !== 'IN_PROGRESS' && <FiClock size={18} />}
+                  </div>
+                  
+                  <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-bold text-slate-900">{stage.name}</h4>
+                      <span className="text-xs font-mono text-slate-500">{stage.durationMillis ? (stage.durationMillis / 1000).toFixed(1) + 's' : ''}</span>
+                    </div>
+                    <div className="text-xs text-slate-500">Status: <span className="font-medium text-slate-700">{stage.status}</span></div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>

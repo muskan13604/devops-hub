@@ -13,5 +13,6 @@ router.post('/trigger', authorize('Admin', 'Developer'), jenkinsController.trigg
 
 router.get('/:jobName/:buildId/status', jenkinsController.getBuildStatus);
 router.get('/:jobName/:buildId/logs', jenkinsController.getBuildLogs);
+router.get('/:jobName/:buildId/stages', jenkinsController.getPipelineStages);
 
 module.exports = router;

@@ -9,6 +9,8 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { GitHubReposPage } from './pages/GitHubReposPage';
 import { DockerPage } from './pages/DockerPage';
 import { DeploymentsPage } from './pages/DeploymentsPage';
+import { KubernetesPage } from './pages/KubernetesPage';
+import { MonitoringPage } from './pages/MonitoringPage';
 
 export default function App() { 
   return (
@@ -19,8 +21,9 @@ export default function App() {
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/repositories" element={<GitHubReposPage />} />
           <Route path="/docker" element={<DockerPage />} />
+          <Route path="/kubernetes" element={<KubernetesPage />} />
           <Route path="/deployments" element={<DeploymentsPage />} />
-          <Route path="/monitoring" element={<PlaceholderPage title="Monitoring" />} />
+          <Route path="/monitoring" element={<MonitoringPage />} />
           <Route path="/ai-assistant" element={<PlaceholderPage title="AI Assistant" />} />
           <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
         </Route>

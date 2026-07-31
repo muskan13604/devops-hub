@@ -33,6 +33,16 @@ Yeh ek complete DevOps dashboard application hai jo React (Frontend) aur Node.js
   - Jab bhi build trigger hota hai, ek naya `jenkinsHistory` collection MongoDB mein entry store karta hai taaki hume past builds ka record mile, bina baar baar Jenkins ko load kiye.
   - Frontend (`DeploymentsPage.jsx`) pe ek modal setup kiya hai jo Jenkins se build ka live log console (`consoleText`) fetch karke dikhata hai.
 
+### 6. Kubernetes Control Plane
+- **Kya kiya:** Ek fully functional React K8s dashboard banaya hai jahan aap apne cluster ke Pods, Deployments, aur Services dekh aur manage kar sakte hain.
+- **Kyu kiya:** K8s industry standard hai container orchestration ke liye! Humara dashboard seedha aapke cluster ko manage karta hai.
+- **Kaise kiya:** Backend mein `@kubernetes/client-node` install kiya gaya hai jo aapki machine ki local `~/.kube/config` (ya ServiceAccount credentials) se authenticate karke Kubernetes API server se direct baat karta hai. Hum yahan se apps deploy kar sakte hain, scale kar sakte hain aur restart bhi kar sakte hain!
+
+### 7. Prometheus & Grafana Monitoring
+- **Kya kiya:** "Monitoring" page banaya jismein aap live CPU/Memory metrics aur embedded Grafana dashboards dekh sakte hain.
+- **Kyu kiya:** Kyunki system health track karna DevOps ka main hissa hai!
+- **Kaise kiya:** Backend mein ek `prometheus.service.js` banaya gaya jo standard Prometheus HTTP API ko query karta hai (`PromQL` use karke). Frontend is data ko live fetch karke simple aur clean UI mein dikhata hai. Grafana embed karne ke liye iframe logic use ki gayi hai jisse kisi bhi URL ko direct dashboard mein dikhaya ja sake!
+
 ## 🚀 Isko Run Kaise Karein?
 
 Docker compose ka use karke pura project ek single command se start ho jata hai:

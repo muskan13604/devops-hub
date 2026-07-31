@@ -9,7 +9,8 @@ const navItems = [
   { to: '/projects', label: 'Projects', icon: FiBox },
   { to: '/repositories', label: 'Repositories', icon: FiGithub },
   { to: '/docker', label: 'Docker Engine', icon: FiBox },
-  { to: '/deployments', label: 'Deployments', icon: FiCloudLightning },
+  { to: '/kubernetes', label: 'Kubernetes', icon: FiLayers },
+  { to: '/deployments', label: 'Jenkins Pipelines', icon: FiCloudLightning },
   { to: '/monitoring', label: 'Monitoring', icon: FiCpu },
   { to: '/ai-assistant', label: 'AI Assistant', icon: FiMessageSquare },
   { to: '/settings', label: 'Settings', icon: FiSettings }

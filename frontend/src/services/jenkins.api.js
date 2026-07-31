@@ -24,5 +24,10 @@ export const jenkinsApi = {
   getBuildLogs: async (jobName, buildId) => {
     const response = await api.get(`/jenkins/${jobName}/${buildId}/logs`);
     return response.data;
+  },
+  
+  getPipelineStages: async (jobName, buildId) => {
+    const response = await api.get(`/jenkins/${jobName}/${buildId}/stages`);
+    return response.data;
   }
 };

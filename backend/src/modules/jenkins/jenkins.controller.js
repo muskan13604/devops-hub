@@ -40,6 +40,16 @@ async function getBuildLogs(req, res, next) {
   }
 }
 
+async function getPipelineStages(req, res, next) {
+  try {
+    const { jobName, buildId } = req.params;
+    const result = await jenkinsService.getPipelineStages(req.user._id, jobName, buildId);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function getHistory(req, res, next) {
   try {
     const result = await jenkinsService.getHistory(req.user._id);
@@ -54,5 +64,6 @@ module.exports = {
   triggerBuild,
   getBuildStatus,
   getBuildLogs,
+  getPipelineStages,
   getHistory
 };
