@@ -16,6 +16,11 @@ export const dockerApi = {
     return response.data;
   },
   
+  pushImage: async (imageName) => {
+    const response = await api.post('/docker/images/push', { imageName });
+    return response.data;
+  },
+  
   deleteImage: async (imageId) => {
     const response = await api.delete(`/docker/images/${imageId}`);
     return response.data;

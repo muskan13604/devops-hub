@@ -51,9 +51,23 @@ async function buildImage(req, res, next) {
   }
 }
 
+async function pushImage(req, res, next) {
+  try {
+    const { imageName } = req.body;
+    const result = await dockerService.pushImage(imageName);
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   listImages,
   pullImage,
   deleteImage,
-  buildImage
+  buildImage,
+  pushImage
 };

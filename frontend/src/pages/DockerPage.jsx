@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { dockerApi } from '../services/docker.api';
-import { FiBox, FiDownload, FiTrash2, FiPlay, FiX, FiTerminal } from 'react-icons/fi';
+import { FiBox, FiDownload, FiTrash2, FiPlay, FiX, FiTerminal, FiUploadCloud } from 'react-icons/fi';
 
 export function DockerPage() {
   const [isPullModalOpen, setIsPullModalOpen] = useState(false);
@@ -19,6 +19,16 @@ export function DockerPage() {
     mutationFn: dockerApi.deleteImage,
     onSuccess: () => {
       queryClient.invalidateQueries(['dockerImages']);
+    }
+  });
+
+  const pushMutation = useMutation({
+    mutationFn: dockerApi.pushImage,
+    onSuccess: (res) => {
+      setLogs(res.data.logs);
+    },
+    onError: (err) => {
+      setLogs(err.response?.data?.message || err.message);
     }
   });
 
@@ -101,7 +111,15 @@ export function DockerPage() {
                       {img.Size}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button onClick={() => handleDelete(img.ID)} disabled={deleteMutation.isPending} className="text-rose-600 hover:text-rose-900 p-2 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-50">
+                      <button 
+                        onClick={() => pushMutation.mutate(`${img.Repository}${img.Tag !== '<none>' ? ':' + img.Tag : ''}`)} 
+                        disabled={pushMutation.isPending || img.Repository === '<none>'} 
+                        className="text-indigo-600 hover:text-indigo-900 p-2 hover:bg-indigo-50 rounded-lg transition-colors disabled:opacity-50 mr-2"
+                        title="Push Image"
+                      >
+                        <FiUploadCloud size={16} />
+                      </button>
+                      <button onClick={() => handleDelete(img.ID)} disabled={deleteMutation.isPending} className="text-rose-600 hover:text-rose-900 p-2 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-50" title="Delete Image">
                         <FiTrash2 size={16} />
                       </button>
                     </td>

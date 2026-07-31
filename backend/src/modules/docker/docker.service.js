@@ -53,9 +53,22 @@ async function buildImage(tag, dockerfilePath) {
   }
 }
 
+async function pushImage(imageName) {
+  try {
+    if (!imageName || typeof imageName !== 'string') {
+      throw new AppError('Image name is required', 400);
+    }
+    const { stdout, stderr } = await execAsync(`docker push ${imageName}`);
+    return { logs: stdout || stderr };
+  } catch (error) {
+    throw new AppError(`Failed to push image: ${error.message}`, 500);
+  }
+}
+
 module.exports = {
   listImages,
   pullImage,
   deleteImage,
-  buildImage
+  buildImage,
+  pushImage
 };

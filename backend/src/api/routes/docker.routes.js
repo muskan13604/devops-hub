@@ -9,6 +9,7 @@ router.use(authorize('Admin', 'Developer'));
 router.get('/images', dockerController.listImages);
 router.post('/images/pull', dockerController.pullImage);
 router.post('/images/build', dockerController.buildImage);
+router.post('/images/push', dockerController.pushImage);
 router.delete('/images/:imageId', dockerController.deleteImage);
 
 module.exports = router;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jenkinsApi } from '../services/jenkins.api';
-import { FiCloudLightning, FiSettings, FiPlay, FiClock, FiCheckCircle, FiXCircle, FiLoader, FiFileText, FiX } from 'react-icons/fi';
+import { FiCloudLightning, FiSettings, FiPlay, FiClock, FiCheckCircle, FiXCircle, FiLoader, FiFileText, FiX, FiRotateCw } from 'react-icons/fi';
 
 export function DeploymentsPage() {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
@@ -13,6 +13,13 @@ export function DeploymentsPage() {
     queryKey: ['jenkinsHistory'],
     queryFn: jenkinsApi.getHistory,
     retry: false
+  });
+
+  const retryMutation = useMutation({
+    mutationFn: ({ jobName, parameters }) => jenkinsApi.triggerBuild(jobName, parameters),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['jenkinsHistory']);
+    }
   });
 
   const history = response?.data || [];
@@ -111,10 +118,15 @@ export function DeploymentsPage() {
                         {new Date(build.triggeredAt).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {/* We use historyId (from MongoDB) to identify builds in Jenkins if we had real mapping, 
-                            but in this demo, Jenkins assigns its own ID. We assume a 1-to-1 or prompt the user for the Build ID for logs.
-                            For now, let's just use a placeholder to show logs if they know the Jenkins build ID. */}
-                        <button onClick={() => setViewingLogs(build)} className="text-slate-400 hover:text-indigo-600 p-2 rounded-lg transition-colors">
+                        <button 
+                          onClick={() => retryMutation.mutate({ jobName: build.jobName, parameters: build.parameters })} 
+                          disabled={retryMutation.isPending}
+                          className="text-slate-400 hover:text-emerald-600 p-2 rounded-lg transition-colors mr-2 disabled:opacity-50"
+                          title="Retry Build"
+                        >
+                          <FiRotateCw size={18} className={retryMutation.isPending ? "animate-spin" : ""} />
+                        </button>
+                        <button onClick={() => setViewingLogs(build)} className="text-slate-400 hover:text-indigo-600 p-2 rounded-lg transition-colors" title="View Logs">
                           <FiFileText size={18} />
                         </button>
                       </td>
