@@ -11,6 +11,7 @@ import { DockerPage } from './pages/DockerPage';
 import { DeploymentsPage } from './pages/DeploymentsPage';
 import { KubernetesPage } from './pages/KubernetesPage';
 import { MonitoringPage } from './pages/MonitoringPage';
+import { AiAssistantPage } from './pages/AiAssistantPage';
 
 export default function App() { 
   return (
@@ -24,7 +25,7 @@ export default function App() {
           <Route path="/kubernetes" element={<KubernetesPage />} />
           <Route path="/deployments" element={<DeploymentsPage />} />
           <Route path="/monitoring" element={<MonitoringPage />} />
-          <Route path="/ai-assistant" element={<PlaceholderPage title="AI Assistant" />} />
+          <Route path="/ai-assistant" element={<AiAssistantPage />} />
           <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
         </Route>
       </Route>

@@ -1,6 +1,7 @@
 const { AppError } = require('../../shared/errors/AppError');
 const { getDatabase } = require('../../database/mongoClient');
 const { ObjectId } = require('mongodb');
+const { broadcastNotification } = require('../../socket');
 
 const usersCollection = () => getDatabase().collection('users');
 const jenkinsHistoryCollection = () => getDatabase().collection('jenkinsHistory');
@@ -58,6 +59,8 @@ async function triggerBuild(userId, jobName, parameters = {}) {
     status: 'TRIGGERED'
   };
   const result = await jenkinsHistoryCollection().insertOne(history);
+  
+  broadcastNotification('Jenkins Build Triggered', `Job ${jobName} has been queued.`, 'info');
   
   return { message: `Build triggered for ${jobName}`, historyId: result.insertedId };
 }

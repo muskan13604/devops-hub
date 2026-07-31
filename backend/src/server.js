@@ -1,10 +1,15 @@
+const http = require('http');
 const app = require('./app');
 const env = require('./config/env');
 const { connectDatabase, disconnectDatabase } = require('./database/mongoClient');
+const { initSocket } = require('./socket');
 
 async function start() {
   await connectDatabase();
-  const server = app.listen(env.port, () => console.log(`API listening on port ${env.port}`));
+  const server = http.createServer(app);
+  initSocket(server);
+  
+  server.listen(env.port, () => console.log(`API & WebSockets listening on port ${env.port}`));
 
   const shutdown = async (signal) => {
     console.log(`${signal} received; shutting down.`);

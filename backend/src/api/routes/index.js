@@ -8,6 +8,7 @@ const dockerRoutes = require('./docker.routes');
 const jenkinsRoutes = require('./jenkins.routes');
 const kubernetesRoutes = require('./kubernetes.routes');
 const monitoringRoutes = require('./monitoring.routes');
+const aiRoutes = require('./ai.routes');
 
 const router = Router();
 router.use('/health', healthRoutes);
@@ -19,5 +20,6 @@ router.use('/docker', dockerRoutes);
 router.use('/jenkins', jenkinsRoutes);
 router.use('/kubernetes', kubernetesRoutes);
 router.use('/monitoring', monitoringRoutes);
+router.use('/ai', aiRoutes);
 
 module.exports = router;

@@ -43,6 +43,17 @@ Yeh ek complete DevOps dashboard application hai jo React (Frontend) aur Node.js
 - **Kyu kiya:** Kyunki system health track karna DevOps ka main hissa hai!
 - **Kaise kiya:** Backend mein ek `prometheus.service.js` banaya gaya jo standard Prometheus HTTP API ko query karta hai (`PromQL` use karke). Frontend is data ko live fetch karke simple aur clean UI mein dikhata hai. Grafana embed karne ke liye iframe logic use ki gayi hai jisse kisi bhi URL ko direct dashboard mein dikhaya ja sake!
 
+### 8. Realtime Notifications (Socket.io)
+- **Kya kiya:** Ek real-time notification bell and dropdown add kiya header mein.
+- **Kaise kiya:** Backend (Express) par Socket.io server initialize kiya gaya. Jab bhi koi naya build trigger hota hai, `socket.emit` se frontend client ko turant push notification jati hai bina page refresh kiye.
+
+### 9. OpenAI DevOps Assistant (`/ai-assistant`)
+- **Kya kiya:** Ek dedicated AI Assistant page banaya jisme 3 modules hain:
+  1. **DevOps Chatbot**: Jenkins, Docker, ya K8s ke errors puchne ke liye.
+  2. **Log Analyzer**: Raw app logs paste karo aur AI unka summary, root cause, fix, aur terminal commands (JSON) bata dega.
+  3. **Dockerfile Generator**: Apne project ka type likho aur production-ready multi-stage Dockerfile copy-paste kar lo.
+- **Kaise kiya:** Backend Node.js mein official `openai` SDK use karke endpoints banaye gaye. System prompt engineering (GPT-4o-mini) use ki gayi JSON format ensure karne ke liye.
+
 ## 🚀 Isko Run Kaise Karein?
 
 Docker compose ka use karke pura project ek single command se start ho jata hai:

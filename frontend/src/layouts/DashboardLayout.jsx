@@ -1,11 +1,12 @@
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { FiActivity, FiBox, FiGrid, FiLogOut, FiSettings, FiShield, FiBell, FiSearch, FiCloudLightning, FiCpu, FiMessageSquare } from 'react-icons/fi';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { FiHome, FiBox, FiGithub, FiCloudLightning, FiSettings, FiLogOut, FiCpu, FiMessageSquare, FiMenu, FiX, FiLayers, FiBell } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
-import { authApi } from '../services/auth.api';
-import { clearSession } from '../store/authSlice';
+import { logout } from '../store/slices/authSlice';
+import { useState, useEffect } from 'react';
+import { socket, connectSocket, disconnectSocket } from '../services/socket.client';
 
 const navItems = [
-  { to: '/', label: 'Overview', icon: FiGrid },
+  { to: '/', label: 'Overview', icon: FiHome },
   { to: '/projects', label: 'Projects', icon: FiBox },
   { to: '/repositories', label: 'Repositories', icon: FiGithub },
   { to: '/docker', label: 'Docker Engine', icon: FiBox },
@@ -17,110 +18,161 @@ const navItems = [
 ];
 
 export function DashboardLayout() {
-  const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
-  const logout = async () => { 
-    try { 
-      await authApi.logout(); 
-    } finally { 
-      dispatch(clearSession()); 
-      navigate('/login'); 
-    } 
+  useEffect(() => {
+    connectSocket();
+
+    socket.on('NEW_NOTIFICATION', (data) => {
+      setNotifications(prev => [data, ...prev]);
+    });
+
+    return () => {
+      socket.off('NEW_NOTIFICATION');
+      disconnectSocket();
+    };
+  }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/login');
   };
+  
+  const unreadCount = notifications.length;
 
   return (
-    <div className="min-h-screen bg-slate-50/50 lg:flex relative overflow-hidden">
-      {/* Decorative background blobs */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
+    <div className="flex h-screen bg-slate-50">
+      {/* Mobile sidebar backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
-      <aside className="glass-dark z-10 flex w-full flex-col px-4 py-6 text-slate-300 lg:min-h-screen lg:w-[280px] transition-all duration-300">
-        <div className="mb-12 flex items-center gap-3 px-3 text-white">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
-            <FiShield size={20} className="text-white" />
-          </span>
-          <span className="font-bold tracking-tight text-lg">DevOpsHub AI</span>
-        </div>
-        
-        <div className="mb-6 px-3">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Main Menu</p>
-        </div>
-
-        <nav className="flex flex-1 gap-1.5 lg:flex-col">
-          {navItems.map(({ to, label, icon: Icon }) => (
-            <NavLink 
-              key={to} 
-              to={to} 
-              className={({ isActive }) => 
-                `group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                  isActive 
-                    ? 'bg-white/10 text-white shadow-sm ring-1 ring-white/10' 
-                    : 'text-slate-400 hover:bg-white/5 hover:text-white'
-                }`
-              }
-            >
-              <Icon size={18} className="transition-transform group-hover:scale-110" />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="mt-auto pt-6 border-t border-white/10">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 transform border-r border-slate-200 bg-white transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} flex flex-col`}>
+        <div className="flex h-16 items-center px-6 border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-200">
+              <FiCloudLightning className="text-lg" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-slate-900">DevOpsHub<span className="text-indigo-600">.ai</span></span>
+          </div>
           <button 
-            onClick={logout} 
-            className="group flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-slate-400 transition-all duration-200 hover:bg-rose-500/10 hover:text-rose-400"
+            className="ml-auto p-2 text-slate-400 hover:text-slate-600 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
-            <FiLogOut size={18} className="transition-transform group-hover:-translate-x-1" />
-            Sign out
+            <FiX className="text-xl" />
           </button>
+        </div>
+
+        <div className="flex-1 flex flex-col justify-between overflow-y-auto p-4">
+          <nav className="space-y-1">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+                    isActive
+                      ? 'bg-indigo-50 text-indigo-700 shadow-sm'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`
+                }
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <item.icon className="text-lg" />
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4 mt-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold uppercase">
+                {user?.name?.charAt(0) || 'U'}
+              </div>
+              <div className="overflow-hidden">
+                <p className="truncate text-sm font-semibold text-slate-900">{user?.name}</p>
+                <p className="truncate text-xs text-slate-500">{user?.role}</p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-rose-600 shadow-sm border border-slate-200 hover:bg-rose-50 hover:border-rose-100 transition-all"
+            >
+              <FiLogOut />
+              Logout
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="min-w-0 flex-1 relative z-10 flex flex-col">
-        {/* Navbar */}
-        <header className="glass sticky top-0 z-20 flex h-20 items-center justify-between px-8 backdrop-blur-xl">
-          <div className="flex items-center gap-4">
-            <div className="text-sm font-medium text-slate-500">
-              Workspace <span className="mx-2 text-slate-300">/</span> <span className="text-slate-900">Dashboard</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="h-10 w-64 rounded-full border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
-              />
-            </div>
-            
-            <button className="relative rounded-full p-2.5 text-slate-500 hover:bg-slate-100 transition-colors">
+      <main className="flex w-0 flex-1 flex-col overflow-hidden">
+        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:px-8 shadow-sm relative shrink-0">
+          <button
+            className="p-2 text-slate-500 hover:text-slate-700 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(true)}
+          >
+            <FiMenu className="text-2xl" />
+          </button>
+          
+          <div className="flex-1" />
+          
+          {/* Notification Bell */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2 rounded-full text-slate-500 hover:bg-slate-100 transition-colors"
+            >
               <FiBell size={20} />
-              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 border-2 border-white"></span>
-            </button>
-            <button className="rounded-full p-2.5 text-slate-500 hover:bg-slate-100 transition-colors">
-              <FiSettings size={20} />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white border-2 border-white">
+                  {unreadCount}
+                </span>
+              )}
             </button>
             
-            <div className="ml-2 pl-6 border-l border-slate-200 flex items-center gap-3 cursor-pointer group">
-              <div className="flex flex-col items-end hidden md:flex">
-                <span className="text-sm font-semibold text-slate-700">{user?.email?.split('@')[0] || 'User'}</span>
-                <span className="text-xs text-slate-500">Admin</span>
+            {showNotifications && (
+              <div className="absolute right-0 mt-2 w-80 rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden z-50 animate-in slide-in-from-top-2">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                  <h3 className="font-bold text-slate-800">Notifications</h3>
+                  {notifications.length > 0 && (
+                    <button onClick={() => setNotifications([])} className="text-xs text-indigo-600 font-medium hover:text-indigo-800">Clear All</button>
+                  )}
+                </div>
+                <div className="max-h-[400px] overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center text-slate-500 text-sm">
+                      No new notifications
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-slate-100">
+                      {notifications.map((notif, i) => (
+                        <div key={i} className="p-4 hover:bg-slate-50 transition-colors">
+                          <div className="flex items-start justify-between mb-1">
+                            <span className="font-semibold text-sm text-slate-900">{notif.title}</span>
+                            <span className="text-[10px] text-slate-400 font-mono">{new Date(notif.timestamp).toLocaleTimeString()}</span>
+                          </div>
+                          <p className="text-xs text-slate-500 leading-relaxed">{notif.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-bold text-white shadow-md shadow-indigo-500/20 transition-transform group-hover:scale-105">
-                {user?.email?.slice(0, 1).toUpperCase() || 'U'}
-              </div>
-            </div>
+            )}
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="p-8 pb-16 lg:px-12 lg:py-10 max-w-7xl mx-auto w-full flex-1">
+        <div className="flex-1 overflow-auto bg-slate-50 p-4 lg:p-8">
           <Outlet />
         </div>
       </main>
