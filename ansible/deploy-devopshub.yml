@@ -1,0 +1,24 @@
+---
+- name: Deploy DevOpsHub AI
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create namespace devops
+      command: kubectl create namespace devops --dry-run=client -o yaml | kubectl apply -f -
+      
+    - name: Copy Kubernetes manifests to remote
+      copy:
+        src: ../k8s/
+        dest: /tmp/devopshub-k8s/
+
+    - name: Apply ConfigMap and Secrets
+      command: kubectl apply -f /tmp/devopshub-k8s/configmap.yaml -f /tmp/devopshub-k8s/secrets.yaml -n devops
+      
+    - name: Apply Deployment and Service
+      command: kubectl apply -f /tmp/devopshub-k8s/deployment.yaml -f /tmp/devopshub-k8s/service.yaml -n devops
+      
+    - name: Apply Ingress and HPA
+      command: kubectl apply -f /tmp/devopshub-k8s/ingress.yaml -f /tmp/devopshub-k8s/hpa.yaml -n devops
+
+    - name: Wait for pods to be ready
+      command: kubectl wait --namespace devops --for=condition=ready pod --selector=app=devopshub-backend --timeout=90s

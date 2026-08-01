@@ -1,0 +1,21 @@
+---
+- name: Install Kubernetes (MicroK8s for simplicity)
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install MicroK8s via Snap
+      snap:
+        name: microk8s
+        classic: yes
+
+    - name: Wait for MicroK8s to be ready
+      command: microk8s status --wait-ready
+
+    - name: Enable DNS addon
+      command: microk8s enable dns
+
+    - name: Enable Ingress addon
+      command: microk8s enable ingress
+
+    - name: Alias kubectl
+      command: snap alias microk8s.kubectl kubectl
