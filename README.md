@@ -1,68 +1,93 @@
-# DevOps Hub AI 🚀
+# DevOpsHub AI
 
-Yeh ek complete DevOps dashboard application hai jo React (Frontend) aur Node.js/Express (Backend) ka use karta hai. Is project mein humne GitHub API aur Docker dono ko integrate kiya hai!
+[![CI/CD Pipeline](https://github.com/devopshub-user/devopshub-backend/actions/workflows/main.yml/badge.svg)](https://github.com/devopshub-user/devopshub-backend/actions/workflows/main.yml)
 
-## 🛠️ Humne Abhi Tak Kya Kya Kiya Hai?
+DevOpsHub AI is an advanced, AI-driven DevOps automation and monitoring platform. It is engineered with robust data structures, efficient algorithms, and intelligent systems to streamline your CI/CD pipelines, visualize Kubernetes topologies, and automate YAML generation.
 
-### 1. Authentication & Roles (Backend & Frontend)
-- **Kya kiya:** JWT aur Cookies ka use karke secure login/register system banaya.
-- **Kaise kiya:** Backend mein `auth.controller.js` banaya jo user password ko bcrypt se hash karta hai, aur JWT tokens generate karta hai. Frontend mein React Query aur Redux ka use karke user state manage kiya gaya hai.
-- **Roles:** `Admin`, `Developer`, aur `Viewer` roles banaye hain jisse unauthorized users sensitive APIs access na kar sakein.
+---
 
-### 2. GitHub Integration
-- **Kya kiya:** User ka GitHub Personal Access Token store karke unke repositories, branches aur latest commits fetch kiye.
-- **Kaise kiya:** Backend mein `github.service.js` fetch API use karta hai GitHub se data laane ke liye. Frontend mein ek dedicated "Repositories" page aur ek slide-over panel banaya hai jo directly branches aur unke commits dikhata hai.
+## 🏗 Architecture
 
-### 3. Dockerization (Docker Compose)
-- **Kya kiya:** Pure frontend, backend aur database (MongoDB) ko Docker containers ke andar daal diya. Nginx ka setup kiya as a reverse proxy.
-- **Kaise kiya:** 
-  - `backend/Dockerfile`: Node Alpine base image use karke backend setup kiya aur usme `docker` CLI install kiya.
-  - `frontend/Dockerfile`: Multi-stage build (Node se build karke Nginx se serve kiya).
-  - `docker-compose.yml`: Frontend, Backend, MongoDB aur ek Nginx API gateway ko ek sath connect kiya.
+The platform consists of a Node.js Express backend serving APIs for Kubernetes, Docker, Jenkins, and GitHub integrations. It utilizes:
+- **Graph & Topological Sort**: For resolving complex deployment dependency graphs.
+- **Priority Queues**: To schedule critical production deployments ahead of staging/dev environments.
+- **Trie (Prefix Trees)**: For O(m) rapid autocomplete suggestions of CLI commands.
+- **LRU Caches**: Optimized with HashMaps and Doubly Linked Lists to cache heavy network requests (Jenkins logs, Pod Info).
+- **Segment Trees**: For rapid O(log n) range queries on CPU/Memory telemetry over time.
+- **Union Find (DSU)**: To dynamically build node topology networks and detect isolated cluster components.
+- **Dynamic Programming (Edit Distance / LCS)**: For precisely generating semantic diffs between Kubernetes YAML manifest iterations.
 
-### 4. Docker APIs & UI (Host Machine ke Docker se baat karna)
-- **Kya kiya:** Aisi APIs banayi jo backend se directly Docker images list, pull, build aur delete kar sakti hain, aur frontend pe iska ek mast "Docker Engine" page banaya hai!
-- **Kaise kiya:** Backend Docker container ke andar host machine ka Docker socket (`/var/run/docker.sock`) mount kiya gaya hai. Backend mein Node ka `child_process.exec` use karke hum backend se real terminal commands (jaise `docker images`) run karte hain. Frontend pe ek modal banaya hai jo in commands ka raw output (logs) ek dark terminal view mein dikhata hai.
+## 🛠 Tech Stack
 
-### 5. Jenkins CI/CD Integration
-- **Kya kiya:** "Deployments" section ko ek fully functional Jenkins Dashboard mein convert kiya jisse hum jobs trigger kar sakte hain aur build history dekh sakte hain.
-- **Kyu kiya:** Kyunki DevOps dashboard bina CI/CD ke adhura hai! Jenkins se directly pipelines trigger karna bahut zaruri hai.
-- **Kaise kiya:** 
-  - Backend mein naya `jenkins` module banaya jo Jenkins REST API se baat karta hai (Basic Auth use karke).
-  - Jenkins configuration (URL, Username, Token) ko dynamically MongoDB ke user document mein store kiya (jaise GitHub token).
-  - Jab bhi build trigger hota hai, ek naya `jenkinsHistory` collection MongoDB mein entry store karta hai taaki hume past builds ka record mile, bina baar baar Jenkins ko load kiye.
-  - Frontend (`DeploymentsPage.jsx`) pe ek modal setup kiya hai jo Jenkins se build ka live log console (`consoleText`) fetch karke dikhata hai.
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB, Redis (Concepts mapped via Data Structures)
+- **AI Engine**: OpenAI API (`gpt-3.5-turbo`)
+- **CI/CD**: Jenkins, GitHub Actions
+- **Infrastructure**: Kubernetes (MicroK8s), Docker
+- **Automation**: Ansible
+- **Testing**: Jest, Supertest
+- **Documentation**: Swagger / OpenAPI 3.0
 
-### 6. Kubernetes Control Plane
-- **Kya kiya:** Ek fully functional React K8s dashboard banaya hai jahan aap apne cluster ke Pods, Deployments, aur Services dekh aur manage kar sakte hain.
-- **Kyu kiya:** K8s industry standard hai container orchestration ke liye! Humara dashboard seedha aapke cluster ko manage karta hai.
-- **Kaise kiya:** Backend mein `@kubernetes/client-node` install kiya gaya hai jo aapki machine ki local `~/.kube/config` (ya ServiceAccount credentials) se authenticate karke Kubernetes API server se direct baat karta hai. Hum yahan se apps deploy kar sakte hain, scale kar sakte hain aur restart bhi kar sakte hain!
+## 🚀 Installation
 
-### 7. Prometheus & Grafana Monitoring
-- **Kya kiya:** "Monitoring" page banaya jismein aap live CPU/Memory metrics aur embedded Grafana dashboards dekh sakte hain.
-- **Kyu kiya:** Kyunki system health track karna DevOps ka main hissa hai!
-- **Kaise kiya:** Backend mein ek `prometheus.service.js` banaya gaya jo standard Prometheus HTTP API ko query karta hai (`PromQL` use karke). Frontend is data ko live fetch karke simple aur clean UI mein dikhata hai. Grafana embed karne ke liye iframe logic use ki gayi hai jisse kisi bhi URL ko direct dashboard mein dikhaya ja sake!
+### Local Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/devopshub-user/devopshub-backend.git
+   cd devopshub-backend/backend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables:
+   Copy `.env.example` to `.env` and fill in your `OPENAI_API_KEY`.
+4. Run the server:
+   ```bash
+   npm run dev
+   ```
 
-### 8. Realtime Notifications (Socket.io)
-- **Kya kiya:** Ek real-time notification bell and dropdown add kiya header mein.
-- **Kaise kiya:** Backend (Express) par Socket.io server initialize kiya gaya. Jab bhi koi naya build trigger hota hai, `socket.emit` se frontend client ko turant push notification jati hai bina page refresh kiye.
-
-### 9. OpenAI DevOps Assistant (`/ai-assistant`)
-- **Kya kiya:** Ek dedicated AI Assistant page banaya jisme 3 modules hain:
-  1. **DevOps Chatbot**: Jenkins, Docker, ya K8s ke errors puchne ke liye.
-  2. **Log Analyzer**: Raw app logs paste karo aur AI unka summary, root cause, fix, aur terminal commands (JSON) bata dega.
-  3. **Dockerfile Generator**: Apne project ka type likho aur production-ready multi-stage Dockerfile copy-paste kar lo.
-- **Kaise kiya:** Backend Node.js mein official `openai` SDK use karke endpoints banaye gaye. System prompt engineering (GPT-4o-mini) use ki gayi JSON format ensure karne ke liye.
-
-## 🚀 Isko Run Kaise Karein?
-
-Docker compose ka use karke pura project ek single command se start ho jata hai:
-
+### 🐳 Docker Run
 ```bash
-docker-compose up --build
+docker build -t devopshub-backend .
+docker run -p 3000:3000 --env-file .env devopshub-backend
 ```
-Yeh command Nginx ko port `80` par start karega:
-- **Frontend URL:** `http://localhost`
-- **Backend API:** `http://localhost/api`
 
-Sab set hai! Agar aap naye containers ya features add karna chahte hain, to bas code change karke `docker-compose up --build` wapas run karein.
+## 🚢 Deployment
+
+Deployment is fully automated using Ansible and Kubernetes.
+
+1. **Provision the Servers**:
+   Navigate to the `ansible/` directory and run the playbooks on your host inventory:
+   ```bash
+   ansible-playbook -i hosts install-docker.yml
+   ansible-playbook -i hosts install-jenkins.yml
+   ansible-playbook -i hosts install-kubernetes.yml
+   ```
+2. **Deploy the App**:
+   ```bash
+   ansible-playbook -i hosts deploy-devopshub.yml
+   ```
+   This automatically applies the manifests located in the `k8s/` folder, including Deployments, Services, ConfigMaps, Secrets, Ingress, and the Horizontal Pod Autoscaler.
+
+## 🖼 Screenshots
+
+*(Placeholders for future UI elements)*
+
+- **AI YAML Generator**
+  > `[Screenshot of natural language prompt generating K8s YAML]`
+- **Monitoring Dashboard**
+  > `[Screenshot of CPU/Memory charts powered by the Segment Tree]`
+- **Topology Map**
+  > `[Screenshot of Union Find derived Node clusters]`
+
+## 📚 API Documentation
+
+Once the backend is running, you can explore and test the endpoints via the integrated Swagger UI:
+- **Swagger Dashboard**: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+
+## 🔮 Future Scope
+
+- **Real-time WebSockets**: Push logs from Jenkins and K8s Pods directly to the frontend.
+- **Distributed Caching**: Migrate the in-memory LRU Cache to a distributed Redis cluster for multi-node deployments.
+- **AI Agent Auto-Remediation**: Use the AI Engine not just for generating YAML, but for diagnosing crash loops and applying patches automatically.

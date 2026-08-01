@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const jenkinsController = require('../../modules/jenkins/jenkins.controller');
-const { authenticate, authorize } = require('../middlewares/auth.middleware');
+const { authenticate } = require('../middlewares/authenticate');
+const { authorize } = require('../middlewares/authorize');
 
 router.use(authenticate);
 

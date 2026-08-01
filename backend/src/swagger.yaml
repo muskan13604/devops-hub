@@ -1,0 +1,94 @@
+openapi: 3.0.0
+info:
+  title: DevOpsHub AI API
+  description: Advanced AI-driven DevOps automation API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+    description: Local development server
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  uptime:
+                    type: number
+  /auth/login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+        '401':
+          description: Unauthorized
+  /projects:
+    get:
+      summary: List all projects
+      responses:
+        '200':
+          description: Array of projects
+    post:
+      summary: Create a new project
+      responses:
+        '201':
+          description: Project created
+  /ai/generate-yaml:
+    post:
+      summary: Generate Kubernetes YAML via AI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  example: "Deploy nginx on port 80"
+                resourceTypes:
+                  type: array
+                  items:
+                    type: string
+                  example: ["Deployment", "Service"]
+      responses:
+        '200':
+          description: YAML generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  yaml:
+                    type: string
+  /kubernetes/deploy:
+    post:
+      summary: Schedule a deployment
+      responses:
+        '202':
+          description: Deployment scheduled
+  /jenkins/queue:
+    get:
+      summary: View pending CI/CD jobs
+      responses:
+        '200':
+          description: Array of jobs

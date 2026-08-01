@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const monitoringController = require('../../modules/monitoring/monitoring.controller');
-const { authorize } = require('../middlewares/auth.middleware');
+const { authorize } = require('../middlewares/authorize');
 
 // Protect monitoring APIs
 router.use(authorize('Admin', 'Developer', 'Viewer'));

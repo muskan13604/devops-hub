@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const k8sController = require('../../modules/kubernetes/kubernetes.controller');
-const { authorize } = require('../middlewares/auth.middleware');
+const { authorize } = require('../middlewares/authorize');
 
 // Protect K8s APIs to Admins and Developers
 router.use(authorize('Admin', 'Developer'));
