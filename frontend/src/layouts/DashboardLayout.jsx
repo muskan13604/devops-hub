@@ -1,7 +1,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { FiHome, FiBox, FiGithub, FiCloudLightning, FiSettings, FiLogOut, FiCpu, FiMessageSquare, FiMenu, FiX, FiLayers, FiBell } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../store/slices/authSlice';
+import { clearSession } from '../store/authSlice';
 import { useState, useEffect } from 'react';
 import { socket, connectSocket, disconnectSocket } from '../services/socket.client';
 
@@ -39,7 +39,7 @@ export function DashboardLayout() {
   }, []);
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(clearSession());
     navigate('/login');
   };
   

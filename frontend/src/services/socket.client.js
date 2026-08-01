@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { API_URL } from './api'; // Use the same base URL as standard API requests
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Determine socket URL based on API_URL
 // API_URL is usually '/api', so the socket server is simply '/'
