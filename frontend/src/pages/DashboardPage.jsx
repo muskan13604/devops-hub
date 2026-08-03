@@ -1,4 +1,5 @@
 import { FiTrendingUp, FiActivity, FiAlertCircle } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 const metrics = [
   { label: 'Active projects', value: '12', note: '+2 this month', icon: FiActivity, color: 'text-indigo-600', bg: 'bg-indigo-100', trend: 'text-emerald-600' },
@@ -57,9 +58,9 @@ export function DashboardPage() {
             </div>
             <h3 className="text-sm font-semibold text-slate-900">No projects connected</h3>
             <p className="mt-1 text-sm text-slate-500 max-w-sm">Connect a project or repository to start seeing deployment analytics and real-time activity.</p>
-            <button className="mt-4 inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-500/20 transition-colors hover:bg-indigo-700">
+            <Link to="/projects" className="mt-4 inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-500/20 transition-colors hover:bg-indigo-700">
               Connect Project
-            </button>
+            </Link>
           </div>
         </div>
       </section>

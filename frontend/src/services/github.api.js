@@ -1,10 +1,10 @@
-import { publicApi } from './http';
+import { api } from './http';
 
 const unwrap = (response) => response.data.data;
 
 export const githubApi = {
-  saveToken: (token) => publicApi.post('/github/token', { token }).then(unwrap),
-  getRepositories: () => publicApi.get('/github/repositories').then(unwrap),
-  getBranches: (repo) => publicApi.get('/github/branches', { params: { repo } }).then(unwrap),
-  getCommits: (repo, branch) => publicApi.get('/github/commits', { params: { repo, branch } }).then(unwrap),
+  saveToken: (token) => api.post('/github/token', { token }).then(unwrap),
+  getRepositories: () => api.get('/github/repositories').then(unwrap),
+  getBranches: (repo) => api.get('/github/branches', { params: { repo } }).then(unwrap),
+  getCommits: (repo, branch) => api.get('/github/commits', { params: { repo, branch } }).then(unwrap),
 };

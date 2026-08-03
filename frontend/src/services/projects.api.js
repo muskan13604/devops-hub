@@ -1,12 +1,12 @@
-import { publicApi } from './http';
+import { api } from './http';
 
 const unwrap = (response) => response.data.data;
 const unwrapWithMeta = (response) => response.data; // Keep meta for pagination
 
 export const projectsApi = {
-  create: (data) => publicApi.post('/projects', data).then(unwrap),
-  list: (params) => publicApi.get('/projects', { params }).then(unwrapWithMeta),
-  get: (id) => publicApi.get(`/projects/${id}`).then(unwrap),
-  update: ({ id, data }) => publicApi.put(`/projects/${id}`, data).then(unwrap),
-  delete: (id) => publicApi.delete(`/projects/${id}`),
+  create: (data) => api.post('/projects', data).then(unwrap),
+  list: (params) => api.get('/projects', { params }).then(unwrapWithMeta),
+  get: (id) => api.get(`/projects/${id}`).then(unwrap),
+  update: ({ id, data }) => api.put(`/projects/${id}`, data).then(unwrap),
+  delete: (id) => api.delete(`/projects/${id}`),
 };
