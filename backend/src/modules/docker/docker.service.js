@@ -24,7 +24,10 @@ async function pullImage(imageName) {
     const { stdout, stderr } = await execAsync(`docker pull ${imageName}`);
     return { logs: stdout || stderr };
   } catch (error) {
-    throw new AppError(`Failed to pull image: ${error.message}`, 500);
+    if (error.message.includes('x509: certificate signed by unknown authority')) {
+      throw new AppError('Docker Daemon TLS Error: Certificate signed by unknown authority.\n\nYour Docker daemon is unable to securely connect to Docker Hub. This usually happens when you are behind a corporate proxy or VPN that intercepts SSL traffic. Please configure your Docker Desktop to use your corporate proxy or add the root certificate to Docker.', 400, 'DOCKER_TLS_ERROR');
+    }
+    throw new AppError(`Failed to pull image: ${error.message}`, 400);
   }
 }
 
@@ -36,7 +39,7 @@ async function deleteImage(imageId) {
     const { stdout, stderr } = await execAsync(`docker rmi -f ${imageId}`);
     return { logs: stdout || stderr };
   } catch (error) {
-    throw new AppError(`Failed to delete image: ${error.message}`, 500);
+    throw new AppError(`Failed to delete image: ${error.message}`, 400);
   }
 }
 
@@ -49,7 +52,10 @@ async function buildImage(tag, dockerfilePath) {
     const { stdout, stderr } = await execAsync(`docker build -t ${tag} ${path}`);
     return { logs: stdout || stderr };
   } catch (error) {
-    throw new AppError(`Failed to build image: ${error.message}`, 500);
+    if (error.message.includes('x509: certificate signed by unknown authority')) {
+      throw new AppError('Docker Daemon TLS Error: Certificate signed by unknown authority.\n\nYour Docker daemon is unable to securely connect to Docker Hub (e.g. to pull the base image). This usually happens when you are behind a corporate proxy or VPN that intercepts SSL traffic. Please configure your Docker Desktop to use your corporate proxy or add the root certificate to Docker.', 400, 'DOCKER_TLS_ERROR');
+    }
+    throw new AppError(`Failed to build image: ${error.message}`, 400);
   }
 }
 
@@ -61,7 +67,7 @@ async function pushImage(imageName) {
     const { stdout, stderr } = await execAsync(`docker push ${imageName}`);
     return { logs: stdout || stderr };
   } catch (error) {
-    throw new AppError(`Failed to push image: ${error.message}`, 500);
+    throw new AppError(`Failed to push image: ${error.message}`, 400);
   }
 }
 

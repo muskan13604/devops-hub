@@ -5,8 +5,8 @@ const { authorize } = require('../middlewares/authorize');
 
 const { authenticate } = require('../middlewares/authenticate');
 
-// Protect K8s APIs to Admins and Developers
-router.use(authenticate, authorize('Admin', 'Developer'));
+// Protect Kubernetes APIs to Admins, Developers, and Viewers
+router.use(authenticate, authorize('Admin', 'Developer', 'Viewer'));
 
 router.get('/pods', k8sController.listPods);
 router.get('/deployments', k8sController.listDeployments);

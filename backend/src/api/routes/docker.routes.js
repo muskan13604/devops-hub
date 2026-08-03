@@ -4,8 +4,8 @@ const dockerController = require('../../modules/docker/docker.controller');
 const { authorize } = require('../middlewares/authorize');
 const { authenticate } = require('../middlewares/authenticate');
 
-// Protect Docker APIs to Admins and Developers
-router.use(authenticate, authorize('Admin', 'Developer'));
+// Protect Docker APIs to Admins, Developers, and Viewers
+router.use(authenticate, authorize('Admin', 'Developer', 'Viewer'));
 
 router.get('/images', dockerController.listImages);
 router.post('/images/pull', dockerController.pullImage);

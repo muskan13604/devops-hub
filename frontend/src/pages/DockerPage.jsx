@@ -28,7 +28,7 @@ export function DockerPage() {
       setLogs(res.data.logs);
     },
     onError: (err) => {
-      setLogs(err.response?.data?.message || err.message);
+      setLogs(err.response?.data?.error?.message || err.response?.data?.message || err.message);
     }
   });
 
@@ -158,7 +158,7 @@ function PullModal({ onClose, onComplete }) {
       onComplete(res.data.logs);
     },
     onError: (err) => {
-      onComplete(err.response?.data?.message || err.message);
+      onComplete(err.response?.data?.error?.message || err.response?.data?.message || err.message);
       onClose();
     }
   });
@@ -199,7 +199,7 @@ function BuildModal({ onClose, onComplete }) {
       onComplete(res.data.logs);
     },
     onError: (err) => {
-      onComplete(err.response?.data?.message || err.message);
+      onComplete(err.response?.data?.error?.message || err.response?.data?.message || err.message);
       onClose();
     }
   });
