@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const monitoringController = require('../../modules/monitoring/monitoring.controller');
 const { authorize } = require('../middlewares/authorize');
+const { authenticate } = require('../middlewares/authenticate');
 
-// Protect monitoring APIs
-router.use(authorize('Admin', 'Developer', 'Viewer'));
+// Protect Monitoring APIs to all authenticated users
+router.use(authenticate, authorize('Admin', 'Developer', 'Viewer'));
 
 router.get('/metrics', monitoringController.getDashboardMetrics);
 

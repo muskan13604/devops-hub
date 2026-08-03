@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const dockerController = require('../../modules/docker/docker.controller');
 const { authorize } = require('../middlewares/authorize');
+const { authenticate } = require('../middlewares/authenticate');
 
-// We protect these routes. Only Admins and Developers should be able to run Docker commands
-router.use(authorize('Admin', 'Developer'));
+// Protect Docker APIs to Admins and Developers
+router.use(authenticate, authorize('Admin', 'Developer'));
 
 router.get('/images', dockerController.listImages);
 router.post('/images/pull', dockerController.pullImage);

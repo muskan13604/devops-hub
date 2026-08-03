@@ -3,8 +3,10 @@ const router = express.Router();
 const aiController = require('../../modules/ai/ai.controller');
 const { authorize } = require('../middlewares/authorize');
 
+const { authenticate } = require('../middlewares/authenticate');
+
 // Protect AI APIs to all authenticated users
-router.use(authorize('Admin', 'Developer', 'Viewer'));
+router.use(authenticate, authorize('Admin', 'Developer', 'Viewer'));
 
 router.post('/chat', aiController.chat);
 router.post('/analyze-logs', aiController.analyzeLogs);
