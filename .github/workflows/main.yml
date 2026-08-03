@@ -51,13 +51,13 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/devopshub-backend:latest,${{ secrets.DOCKER_USERNAME }}/devopshub-backend:${{ github.sha }}
 
-  trigger-jenkins:
-    needs: docker-build-push
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Trigger Jenkins Pipeline
-        run: |
-          curl -X POST \
-            -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
-            "${{ secrets.JENKINS_URL }}/job/devopshub-deploy/buildWithParameters?token=${{ secrets.JENKINS_TRIGGER_TOKEN }}"
+#   trigger-jenkins:
+#     needs: docker-build-push
+#     runs-on: ubuntu-latest
+#     if: github.ref == 'refs/heads/main'
+#     steps:
+#       - name: Trigger Jenkins Pipeline
+#         run: |
+#           curl -X POST \
+#             -u "${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}" \
+#             "${{ secrets.JENKINS_URL }}/job/devopshub-deploy/buildWithParameters?token=${{ secrets.JENKINS_TRIGGER_TOKEN }}"
