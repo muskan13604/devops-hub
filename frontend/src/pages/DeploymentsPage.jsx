@@ -95,7 +95,12 @@ export function DeploymentsPage() {
                   history.map((build, i) => (
                     <tr 
                       key={i} 
-                      onClick={() => { if (build.jobUrl) window.open(build.jobUrl, '_blank') }}
+                      onClick={() => { 
+                        if (build.jobUrl) {
+                          const safeUrl = build.jobUrl.replace('host.docker.internal', 'localhost');
+                          window.open(safeUrl, '_blank');
+                        }
+                      }}
                       className="hover:bg-slate-50 transition-colors cursor-pointer"
                     >
                       <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-900">

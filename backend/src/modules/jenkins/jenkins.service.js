@@ -193,7 +193,8 @@ async function getHistory(userId) {
 
         return {
           jobName: job.name,
-          jobUrl: `${config.url}/job/${job.name}`,
+          jobUrl: `${config.url}/job/${job.name}`.replace('host.docker.internal', 'localhost'),
+
           buildNumber: job.lastBuild.number,
           status: status,
           parameters: params,
