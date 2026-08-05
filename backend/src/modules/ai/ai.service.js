@@ -16,7 +16,7 @@ async function chat(message) {
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents: message,
       config: {
         systemInstruction: "You are an expert DevOps engineer. You help users debug Docker, Kubernetes, Jenkins, and general CI/CD issues.",
@@ -44,7 +44,7 @@ async function analyzeLogs(logs) {
     const prompt = `Analyze the following application logs. Return ONLY a valid JSON object with these exactly 4 keys: "summary" (string, 1 sentence), "cause" (string, short description of the root cause), "fix" (string, how to fix it), "commands" (array of strings, terminal commands to run). Do not wrap the JSON in markdown blocks.\n\nLogs:\n${logs}`;
     
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents: prompt,
       config: {
         temperature: 0.1, // Keep it deterministic for JSON structure
@@ -77,7 +77,7 @@ async function generateDockerfile(projectType) {
     const prompt = `Generate a production-ready, multi-stage, highly optimized Dockerfile for a project of type: "${projectType}". Return ONLY the raw Dockerfile content. Do not include markdown code block formatting like \`\`\`docker.`;
     
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents: prompt,
       config: {
         temperature: 0.2,
