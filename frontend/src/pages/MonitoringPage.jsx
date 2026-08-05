@@ -6,6 +6,22 @@ import { FiCpu, FiHardDrive, FiActivity, FiRefreshCw, FiExternalLink } from 'rea
 export function MonitoringPage() {
   const [grafanaUrl, setGrafanaUrl] = useState('http://localhost:3000/d-solo/system-overview/system-overview?orgId=1&refresh=5s&theme=light');
 
+  // Check if Grafana is running
+  const { data: grafanaHealth, isLoading: isGrafanaLoading } = useQuery({
+    queryKey: ['grafanaHealth'],
+    queryFn: async () => {
+      try {
+        const res = await fetch('http://localhost:3000/api/health');
+        if (!res.ok) throw new Error('Not ok');
+        return true;
+      } catch (e) {
+        throw new Error('Grafana not reachable');
+      }
+    },
+    retry: false,
+    refetchInterval: 10000
+  });
+
   const { data: metricsRes, isLoading, error, refetch } = useQuery({
     queryKey: ['prometheusMetrics'],
     queryFn: monitoringApi.getMetrics,
@@ -109,13 +125,30 @@ export function MonitoringPage() {
                 <p className="text-xs text-slate-500 mt-1">Make sure Grafana allows embedding (set `allow_embedding = true` in grafana.ini).</p>
               </div>
               
-              <div className="w-full h-[500px] bg-slate-900 rounded-lg overflow-hidden border border-slate-300 flex flex-col items-center justify-center text-slate-400">
-                <FiActivity size={48} className="mb-4 text-slate-600" />
-                <h4 className="text-lg font-medium text-slate-300">Grafana Dashboard Not Connected</h4>
-                <p className="text-sm text-slate-500 mt-2 max-w-sm text-center">
-                  The Grafana container is currently not running or could not be reached at the specified URL. Please ensure Grafana is deployed to view embedded dashboards.
-                </p>
-              </div>
+              {isGrafanaLoading ? (
+                <div className="w-full h-[500px] bg-slate-900 rounded-lg overflow-hidden border border-slate-300 flex flex-col items-center justify-center text-slate-400">
+                  <FiRefreshCw size={48} className="mb-4 text-slate-600 animate-spin" />
+                  <h4 className="text-lg font-medium text-slate-300">Checking Grafana Connection...</h4>
+                </div>
+              ) : grafanaHealth ? (
+                <div className="w-full h-[500px] bg-slate-900 rounded-lg overflow-hidden border border-slate-300">
+                  <iframe 
+                    src={grafanaUrl} 
+                    width="100%" 
+                    height="100%" 
+                    frameBorder="0"
+                    title="Grafana Dashboard"
+                  ></iframe>
+                </div>
+              ) : (
+                <div className="w-full h-[500px] bg-slate-900 rounded-lg overflow-hidden border border-slate-300 flex flex-col items-center justify-center text-slate-400">
+                  <FiActivity size={48} className="mb-4 text-slate-600" />
+                  <h4 className="text-lg font-medium text-slate-300">Grafana Dashboard Not Connected</h4>
+                  <p className="text-sm text-slate-500 mt-2 max-w-sm text-center">
+                    The Grafana container is currently not running or could not be reached at the specified URL. Please ensure Grafana is deployed to view embedded dashboards.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
