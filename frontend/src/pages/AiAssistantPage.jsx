@@ -13,7 +13,7 @@ export function AiAssistantPage() {
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
             <FiCpu className="text-indigo-600" /> AI Assistant
           </h1>
-          <p className="mt-2 text-sm text-slate-500">Powered by OpenAI. Ask DevOps questions, analyze logs, or generate Dockerfiles.</p>
+          <p className="mt-2 text-sm text-slate-500">Powered by Gemini. Ask DevOps questions, analyze logs, or generate Dockerfiles.</p>
         </div>
       </div>
 

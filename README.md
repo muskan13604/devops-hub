@@ -21,33 +21,37 @@ The platform consists of a Node.js Express backend serving APIs for Kubernetes, 
 
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB, Redis (Concepts mapped via Data Structures)
-- **AI Engine**: OpenAI API (`gpt-3.5-turbo`)
-- **CI/CD**: Jenkins, GitHub Actions
-- **Infrastructure**: Kubernetes (MicroK8s), Docker
-- **Automation**: Ansible
-- **Testing**: Jest, Supertest
-- **Documentation**: Swagger / OpenAPI 3.0
+- **AI Engine**: Gemini API (`gemini-2.5-flash`)
+- **Containerization**: Docker & Docker Compose
+- **Orchestration**: Kubernetes
+- **Monitoring**: Grafana & Prometheus (mocked)
 
-## 🚀 Installation
+## Getting Started
 
-### Local Setup
-1. Clone the repository:
+### Prerequisites
+- Docker & Docker Compose
+- Node.js (v18+)
+- A Gemini API Key
+
+### Local Development Setup
+
+1. **Clone the repository**
    ```bash
-   git clone https://github.com/devopshub-user/devopshub-backend.git
-   cd devopshub-backend/backend
+   git clone https://github.com/your-username/devops-hub.git
+   cd devops-hub
    ```
-2. Install dependencies:
+
+2. **Setup Environment Variables**
+   Navigate to the `backend` directory.
    ```bash
-   npm install
+   cd backend
    ```
-3. Set up environment variables:
-   Copy `.env.example` to `.env` and fill in your `OPENAI_API_KEY`.
+   Copy `.env.example` to `.env` and fill in your `GEMINI_API_KEY`.
 4. Run the server:
    ```bash
    npm run dev
    ```
 
-### 🐳 Docker Run
 ```bash
 docker build -t devopshub-backend .
 docker run -p 3000:3000 --env-file .env devopshub-backend

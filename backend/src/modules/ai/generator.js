@@ -1,9 +1,9 @@
-const { OpenAI } = require('openai');
+const { GoogleGenAI } = require('@google/genai');
 
-// Initialize OpenAI client. 
-// Requires OPENAI_API_KEY environment variable to be set.
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+// Initialize Gemini client. 
+// Requires GEMINI_API_KEY environment variable to be set.
+const ai = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 /**
@@ -14,8 +14,8 @@ const openai = new OpenAI({
  * @returns {Promise<string>} - The generated YAML as a string
  */
 async function generateK8sYaml(prompt, resourceTypes = ['Deployment', 'Service']) {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY is not configured.');
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY is not configured.');
   }
 
   const systemMessage = `
@@ -27,16 +27,16 @@ Separate multiple resources with '---'.
   `;
 
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo', // Defaulting to 3.5 turbo for cost efficiency, can be configurable
-      messages: [
-        { role: 'system', content: systemMessage.trim() },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.1, // Low temperature for deterministic, reliable infrastructure code
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+        systemInstruction: systemMessage.trim(),
+        temperature: 0.1, // Low temperature for deterministic, reliable infrastructure code
+      }
     });
 
-    return response.choices[0].message.content.trim();
+    return response.text.trim();
   } catch (error) {
     console.error('Error generating Kubernetes YAML:', error);
     throw new Error('Failed to generate Kubernetes YAML');

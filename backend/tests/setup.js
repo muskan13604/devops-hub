@@ -5,7 +5,7 @@ process.env.JWT_ACCESS_SECRET = 'test_secret_must_be_at_least_32_characters_long
 process.env.JWT_REFRESH_SECRET = 'test_secret_must_be_at_least_32_characters_long';
 process.env.PORT = '5000';
 process.env.NODE_ENV = 'test';
-process.env.OPENAI_API_KEY = 'test_openai_key';
+process.env.GEMINI_API_KEY = 'test_gemini_key';
 
 jest.mock('@kubernetes/client-node', () => {
   return {
