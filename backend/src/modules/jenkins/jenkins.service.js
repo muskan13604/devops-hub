@@ -37,6 +37,21 @@ async function triggerBuild(userId, jobName, parameters = {}) {
   const config = await getJenkinsConfig(userId);
   const headers = getJenkinsHeaders(config);
   
+  // 1. Fetch CSRF Crumb (required by default in modern Jenkins for POST requests)
+  let crumbHeaders = {};
+  try {
+    const crumbRes = await fetch(`${config.url}/crumbIssuer/api/json`, { headers });
+    if (crumbRes.ok) {
+      const crumbData = await crumbRes.json();
+      crumbHeaders[crumbData.crumbRequestField] = crumbData.crumb;
+    }
+  } catch (err) {
+    console.warn('Could not fetch Jenkins crumb. Proceeding without it...', err.message);
+  }
+
+  const finalHeaders = { ...headers, ...crumbHeaders };
+  
+  // 2. Trigger the build
   // Jenkins URL usually ends with /job/JOB_NAME/build (or buildWithParameters)
   const isParameterized = Object.keys(parameters).length > 0;
   const endpoint = isParameterized ? 'buildWithParameters' : 'build';
@@ -45,12 +60,13 @@ async function triggerBuild(userId, jobName, parameters = {}) {
   const qs = isParameterized ? '?' + new URLSearchParams(parameters).toString() : '';
   const url = `${config.url}/job/${jobName}/${endpoint}${qs}`;
   
-  const response = await fetch(url, { method: 'POST', headers });
+  const response = await fetch(url, { method: 'POST', headers: finalHeaders });
+  
   if (!response.ok && response.status !== 201) {
-    throw new AppError(`Failed to trigger Jenkins build for job ${jobName}`, response.status, 'JENKINS_ERROR');
+    throw new AppError(`Failed to trigger Jenkins build for job ${jobName} (Status ${response.status})`, response.status, 'JENKINS_ERROR');
   }
 
-  // We save the build attempt in history
+  // 3. We save the build attempt in local history to track what was triggered from DevOpsHub
   const history = {
     userId: new ObjectId(userId),
     jobName,
@@ -120,12 +136,63 @@ async function getPipelineStages(userId, jobName, buildId) {
 }
 
 async function getHistory(userId) {
-  const history = await jenkinsHistoryCollection()
-    .find({ userId: new ObjectId(userId) })
-    .sort({ triggeredAt: -1 })
-    .limit(50)
-    .toArray();
-  return history;
+  // 1. Get config (will throw JENKINS_NOT_CONNECTED if not configured, which triggers the UI modal)
+  const config = await getJenkinsConfig(userId);
+  const headers = getJenkinsHeaders(config);
+
+  // 2. Fetch all jobs and their last build info from the real Jenkins instance
+  const url = `${config.url}/api/json?tree=jobs[name,color,lastBuild[number,result,timestamp,actions[parameters[name,value]]]]`;
+  
+  try {
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error(`Jenkins API returned status ${response.status}`);
+    }
+    const data = await response.json();
+    
+    if (!data.jobs) return [];
+
+    // 3. Map the Jenkins data to the format the frontend expects
+    const history = data.jobs
+      .filter(job => job.lastBuild) // Only show jobs that have been built at least once
+      .map(job => {
+        // Extract parameters from the actions array
+        let params = {};
+        if (job.lastBuild.actions) {
+          const paramsAction = job.lastBuild.actions.find(a => a._class && a._class.includes('ParametersAction'));
+          if (paramsAction && paramsAction.parameters) {
+            paramsAction.parameters.forEach(p => {
+              params[p.name] = p.value;
+            });
+          }
+        }
+
+        // Determine status
+        let status = 'UNKNOWN';
+        if (job.color && job.color.includes('anime')) {
+          status = 'TRIGGERED'; // It's currently running
+        } else if (job.lastBuild.result === 'SUCCESS') {
+          status = 'SUCCESS';
+        } else if (job.lastBuild.result === 'FAILURE') {
+          status = 'FAILURE';
+        } else if (job.lastBuild.result === 'ABORTED') {
+          status = 'ABORTED';
+        }
+
+        return {
+          jobName: job.name,
+          buildNumber: job.lastBuild.number,
+          status: status,
+          parameters: params,
+          triggeredAt: new Date(job.lastBuild.timestamp).toISOString()
+        };
+      })
+      .sort((a, b) => new Date(b.triggeredAt) - new Date(a.triggeredAt)); // Sort newest first
+      
+    return history;
+  } catch (err) {
+    throw new AppError(`Failed to fetch history from Jenkins: ${err.message}`, 500, 'JENKINS_ERROR');
+  }
 }
 
 module.exports = {

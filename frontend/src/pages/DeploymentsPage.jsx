@@ -84,6 +84,14 @@ export function DeploymentsPage() {
                   <tr>
                     <td colSpan="5" className="px-6 py-12 text-center text-sm text-slate-500">Loading history...</td>
                   </tr>
+                ) : error ? (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-12 text-center text-sm text-rose-500">
+                      Failed to connect to Jenkins: {error?.response?.data?.message || error.message}
+                      <br/>
+                      <span className="text-slate-500 text-xs mt-2 block">If Jenkins is on your host machine, try using 'http://host.docker.internal:8080' instead of localhost.</span>
+                    </td>
+                  </tr>
                 ) : history.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="px-6 py-12 text-center text-sm text-slate-500">
