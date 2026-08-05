@@ -39,17 +39,26 @@ async function triggerBuild(userId, jobName, parameters = {}) {
   
   // 1. Fetch CSRF Crumb (required by default in modern Jenkins for POST requests)
   let crumbHeaders = {};
+  let sessionCookie = '';
   try {
     const crumbRes = await fetch(`${config.url}/crumbIssuer/api/json`, { headers });
     if (crumbRes.ok) {
       const crumbData = await crumbRes.json();
       crumbHeaders[crumbData.crumbRequestField] = crumbData.crumb;
+      
+      const setCookie = crumbRes.headers.get('set-cookie');
+      if (setCookie) {
+        sessionCookie = setCookie.split(';')[0];
+      }
     }
   } catch (err) {
     console.warn('Could not fetch Jenkins crumb. Proceeding without it...', err.message);
   }
 
   const finalHeaders = { ...headers, ...crumbHeaders };
+  if (sessionCookie) {
+    finalHeaders['Cookie'] = sessionCookie;
+  }
   
   // 2. Trigger the build
   // Jenkins URL usually ends with /job/JOB_NAME/build (or buildWithParameters)
@@ -63,6 +72,9 @@ async function triggerBuild(userId, jobName, parameters = {}) {
   const response = await fetch(url, { method: 'POST', headers: finalHeaders });
   
   if (!response.ok && response.status !== 201) {
+    let errorText = '';
+    try { errorText = await response.text(); } catch(e) {}
+    console.error(`Jenkins trigger failed: URL=${url}, Status=${response.status}, Response=${errorText}`);
     throw new AppError(`Failed to trigger Jenkins build for job ${jobName} (Status ${response.status})`, response.status, 'JENKINS_ERROR');
   }
 
@@ -181,6 +193,7 @@ async function getHistory(userId) {
 
         return {
           jobName: job.name,
+          jobUrl: `${config.url}/job/${job.name}`,
           buildNumber: job.lastBuild.number,
           status: status,
           parameters: params,

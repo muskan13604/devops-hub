@@ -5,7 +5,6 @@ import { FiCloudLightning, FiSettings, FiPlay, FiClock, FiCheckCircle, FiXCircle
 
 export function DeploymentsPage() {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
-  const [isTriggerModalOpen, setIsTriggerModalOpen] = useState(false);
   const [viewingLogs, setViewingLogs] = useState(null);
   const [viewingStages, setViewingStages] = useState(null);
   const queryClient = useQueryClient();
@@ -39,12 +38,6 @@ export function DeploymentsPage() {
             className="inline-flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-all hover:bg-slate-50"
           >
             <FiSettings /> Setup Jenkins
-          </button>
-          <button 
-            onClick={() => setIsTriggerModalOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-indigo-500/20 transition-all hover:bg-indigo-700"
-          >
-            <FiPlay /> Trigger Build
           </button>
         </div>
       </div>
@@ -95,12 +88,16 @@ export function DeploymentsPage() {
                 ) : history.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="px-6 py-12 text-center text-sm text-slate-500">
-                      No builds found. Trigger one to get started!
+                      No builds found.
                     </td>
                   </tr>
                 ) : (
                   history.map((build, i) => (
-                    <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                    <tr 
+                      key={i} 
+                      onClick={() => { if (build.jobUrl) window.open(build.jobUrl, '_blank') }}
+                      className="hover:bg-slate-50 transition-colors cursor-pointer"
+                    >
                       <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-900">
                         {build.jobName}
                       </td>
@@ -128,17 +125,17 @@ export function DeploymentsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button 
-                          onClick={() => retryMutation.mutate({ jobName: build.jobName, parameters: build.parameters })} 
+                          onClick={(e) => { e.stopPropagation(); retryMutation.mutate({ jobName: build.jobName, parameters: build.parameters }); }} 
                           disabled={retryMutation.isPending}
                           className="text-slate-400 hover:text-emerald-600 p-2 rounded-lg transition-colors mr-1 disabled:opacity-50"
                           title="Retry Build"
                         >
                           <FiRotateCw size={18} className={retryMutation.isPending ? "animate-spin" : ""} />
                         </button>
-                        <button onClick={() => setViewingStages(build)} className="text-slate-400 hover:text-sky-600 p-2 rounded-lg transition-colors mr-1" title="View Pipeline Stages">
+                        <button onClick={(e) => { e.stopPropagation(); setViewingStages(build); }} className="text-slate-400 hover:text-sky-600 p-2 rounded-lg transition-colors mr-1" title="View Pipeline Stages">
                           <FiGitMerge size={18} />
                         </button>
-                        <button onClick={() => setViewingLogs(build)} className="text-slate-400 hover:text-indigo-600 p-2 rounded-lg transition-colors" title="View Logs">
+                        <button onClick={(e) => { e.stopPropagation(); setViewingLogs(build); }} className="text-slate-400 hover:text-indigo-600 p-2 rounded-lg transition-colors" title="View Logs">
                           <FiFileText size={18} />
                         </button>
                       </td>
@@ -152,7 +149,6 @@ export function DeploymentsPage() {
       )}
 
       {isConfigModalOpen && <ConfigModal onClose={() => setIsConfigModalOpen(false)} />}
-      {isTriggerModalOpen && <TriggerModal onClose={() => setIsTriggerModalOpen(false)} />}
       {viewingLogs && <LogsViewerModal build={viewingLogs} onClose={() => setViewingLogs(null)} />}
       {viewingStages && <StagesViewerModal build={viewingStages} onClose={() => setViewingStages(null)} />}
     </div>
@@ -203,76 +199,8 @@ function ConfigModal({ onClose }) {
   );
 }
 
-function TriggerModal({ onClose }) {
-  const [jobName, setJobName] = useState('');
-  const [paramKey, setParamKey] = useState('');
-  const [paramValue, setParamValue] = useState('');
-  const [parameters, setParameters] = useState({});
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: () => jenkinsApi.triggerBuild(jobName, parameters),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['jenkinsHistory']);
-      onClose();
-    }
-  });
-
-  const addParam = () => {
-    if (paramKey && paramValue) {
-      setParameters({ ...parameters, [paramKey]: paramValue });
-      setParamKey('');
-      setParamValue('');
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-        <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2"><FiPlay /> Trigger Build</h2>
-        
-        <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Job Name</label>
-            <input required type="text" value={jobName} onChange={(e) => setJobName(e.target.value)} placeholder="my-pipeline" className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500" />
-          </div>
-          
-          <div className="pt-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1">Add Parameter (Optional)</label>
-            <div className="flex gap-2">
-              <input type="text" placeholder="Key" value={paramKey} onChange={(e) => setParamKey(e.target.value)} className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500" />
-              <input type="text" placeholder="Value" value={paramValue} onChange={(e) => setParamValue(e.target.value)} className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500" />
-              <button type="button" onClick={addParam} className="bg-slate-100 px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-200">Add</button>
-            </div>
-          </div>
-          
-          {Object.keys(parameters).length > 0 && (
-            <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-              <h4 className="text-xs font-semibold text-slate-500 mb-2 uppercase">Parameters</h4>
-              {Object.entries(parameters).map(([k, v]) => (
-                <div key={k} className="flex justify-between text-sm py-1">
-                  <span className="font-mono text-indigo-600">{k}</span>
-                  <span className="text-slate-600">{v}</span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className="mt-8 flex justify-end gap-3 pt-4 border-t border-slate-100">
-            <button type="button" onClick={onClose} className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Cancel</button>
-            <button type="submit" disabled={mutation.isPending} className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50">
-              {mutation.isPending ? 'Triggering...' : 'Start Build'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
 function LogsViewerModal({ build, onClose }) {
-  const [buildId, setBuildId] = useState('lastBuild'); // Usually Jenkins exposes 'lastBuild'
+  const [buildId, setBuildId] = useState('lastBuild'); 
   const { data, isLoading, error } = useQuery({
     queryKey: ['jenkinsLogs', build.jobName, buildId],
     queryFn: () => jenkinsApi.getBuildLogs(build.jobName, buildId),
